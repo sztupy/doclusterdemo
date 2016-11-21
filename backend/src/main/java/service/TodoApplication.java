@@ -29,12 +29,20 @@ public class TodoApplication extends Application<Configuration> {
     @Override
     public void run(Configuration configuration, Environment environment) throws Exception {
         try {
-          String contactPoint = System.getenv("CASSANDRA_CONTACT_POINT");
+          String contactPoints = System.getenv("CASSANDRA_CONTACT_POINT");
 
-          Cluster cluster = Cluster.builder().addContactPoint(contactPoint).build();
+          Cluster.Builder builder = Cluster.builder();
+
+          for (String contactPoint : contactPoints.split(",")) {
+              builder.addContactPoint(contactPoint);
+          }
+
+          Cluster cluster = builder.build();
+
           Session session = cluster.connect();
           session.execute("CREATE KEYSPACE IF NOT EXISTS todos WITH replication = {'class':'SimpleStrategy','replication_factor':3}");
           session.close();
+
           session = cluster.connect("todos");
 
           environment.jersey().register(new TodoResource(new TodoDaoCassandraImpl(session)));
