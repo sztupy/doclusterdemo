@@ -12,6 +12,10 @@ variable "kubernetes_version" {
   default = "v1.4.3_coreos.0"
 }
 
+variable "kubectl_version" {
+  default = "v1.4.3"
+}
+
 variable "dns_service_ip" {
   default = "10.3.0.10"
 }
@@ -38,6 +42,7 @@ data "template_file" "master" {
   vars {
     etcd_discovery_url    = "${var.etcd_discovery_url}"
     kubernetes_version    = "${var.kubernetes_version}"
+    kubectl_version       = "${var.kubectl_version}"
     dns_service_ip        = "${var.dns_service_ip}"
     kubernetes_service_ip = "${var.kubernetes_service_ip}"
     service_ip_range      = "${var.service_ip_range}"
@@ -70,7 +75,7 @@ resource "digitalocean_domain" "default" {
 }
 
 resource "digitalocean_droplet" "master" {
-  image              = "coreos-stable"
+  image              = "coreos-beta"
   name               = "master"
   region             = "lon1"
   size               = "2gb"
@@ -84,7 +89,7 @@ variable "node_size_config" {
 }
 
 resource "digitalocean_droplet" "node" {
-  image              = "coreos-stable"
+  image              = "coreos-beta"
   name               = "node-${count.index}"
   region             = "lon1"
   size               = "${element(var.node_size_config, count.index)}"
@@ -96,7 +101,7 @@ resource "digitalocean_droplet" "node" {
   provisioner "local-exec" {
     command = <<CMD
       mkdir -p ${var.asset_path} \
-        && ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address} sudo /root/bootstrap/generate-worker-cert.sh ${self.name} ${self.ipv4_address} \
+        && ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address} sudo /root/bootstrap/generate-worker-cert.sh ${self.name} ${self.ipv4_address_private} \
         && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-worker-key.pem ${var.asset_path} \
         && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-worker.pem ${var.asset_path} \
         && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-ca.pem ${var.asset_path} \
