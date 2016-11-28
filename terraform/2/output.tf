@@ -9,7 +9,7 @@ output "api_ipv4" {
 output "hosts" {
   value = <<HOSTS
 
-${digitalocean_domain.default.ip_address} ${var.domain_name}
-${digitalocean_record.api.value} api.${var.domain_name}
+${digitalocean_droplet.frontend.ipv4_address} frontend.local
+${digitalocean_droplet.api.ipv4_address} api.local
 HOSTS
 }

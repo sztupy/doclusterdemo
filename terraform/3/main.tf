@@ -1,8 +1,10 @@
 variable "access_key" {}
 
-variable "domain_name" {}
-
 variable "etcd_discovery_url" {}
+
+variable "local_bash_shell_location" {
+  default = "/usr/bin/env bash"
+}
 
 variable "asset_path" {
   default = "tmp"
@@ -69,11 +71,6 @@ resource "digitalocean_ssh_key" "dodemo" {
   public_key = "${file("~/.ssh/id_rsa.pub")}"
 }
 
-resource "digitalocean_domain" "default" {
-  name       = "${var.domain_name}"
-  ip_address = "${digitalocean_droplet.master.ipv4_address}"
-}
-
 resource "digitalocean_droplet" "master" {
   image              = "coreos-beta"
   name               = "master"
@@ -99,18 +96,7 @@ resource "digitalocean_droplet" "node" {
 
   # cannot copy files from one host to another, so we use a local command to generate the cert on master and copy it over to the worker
   provisioner "local-exec" {
-    command = <<CMD
-      mkdir -p ${var.asset_path} \
-        && ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address} sudo /root/bootstrap/generate-worker-cert.sh ${self.name} ${self.ipv4_address_private} \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-worker-key.pem ${var.asset_path} \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-worker.pem ${var.asset_path} \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address}:/home/core/${self.name}-ca.pem ${var.asset_path} \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ${var.asset_path}/${self.name}-worker-key.pem core@${self.ipv4_address}:/home/core/worker-key.pem \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ${var.asset_path}/${self.name}-worker.pem core@${self.ipv4_address}:/home/core/worker.pem \
-        && scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ${var.asset_path}/${self.name}-ca.pem core@${self.ipv4_address}:/home/core/ca.pem \
-        && rm ${var.asset_path}/${self.name}-worker.pem ${var.asset_path}/${self.name}-worker-key.pem ${var.asset_path}/${self.name}-ca.pem \
-        && ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null core@${digitalocean_droplet.master.ipv4_address} rm /home/core/${self.name}-worker-key.pem /home/core/${self.name}-worker.pem /home/core/${self.name}-ca.pem
-CMD
+    command = "${var.local_bash_shell_location} copy-keys.sh ${var.asset_path} ${digitalocean_droplet.master.ipv4_address} ${self.ipv4_address} ${self.name} ${self.ipv4_address_private}"
   }
 
   count = 1
@@ -120,13 +106,10 @@ output "master_ipv4" {
   value = "${digitalocean_droplet.master.ipv4_address}"
 }
 
-output "node_ipv4" {
-  value = "${digitalocean_droplet.node.0.ipv4_address}"
-}
-
 output "hosts" {
   value = <<HOSTS
 
-${digitalocean_domain.default.ip_address} ${var.domain_name}
+${digitalocean_droplet.master.ipv4_address} master.local
+${digitalocean_droplet.node.0.ipv4_address} node-0.local
 HOSTS
 }

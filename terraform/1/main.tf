@@ -1,7 +1,5 @@
 variable "access_key" {}
 
-variable "domain_name" {}
-
 provider "digitalocean" {
   token = "${var.access_key}"
 }
@@ -9,11 +7,6 @@ provider "digitalocean" {
 resource "digitalocean_ssh_key" "dodemo" {
   name       = "DO Demo Key"
   public_key = "${file("~/.ssh/id_rsa.pub")}"
-}
-
-resource "digitalocean_domain" "default" {
-  name       = "${var.domain_name}"
-  ip_address = "${digitalocean_droplet.web.ipv4_address}"
 }
 
 resource "digitalocean_droplet" "web" {
@@ -33,6 +26,6 @@ output "main_ipv4" {
 output "hosts" {
   value = <<HOSTS
 
-${digitalocean_domain.default.ip_address} ${var.domain_name}
+${digitalocean_droplet.web.ipv4_address} test.local
 HOSTS
 }

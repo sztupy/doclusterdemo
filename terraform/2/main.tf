@@ -1,15 +1,3 @@
-resource "digitalocean_domain" "default" {
-  name       = "${var.domain_name}"
-  ip_address = "${digitalocean_droplet.frontend.ipv4_address}"
-}
-
-resource "digitalocean_record" "api" {
-  domain = "${digitalocean_domain.default.name}"
-  type   = "A"
-  name   = "api"
-  value  = "${digitalocean_droplet.api.ipv4_address}"
-}
-
 data "template_file" "frontend" {
   template = "${file("conf/frontend.conf")}"
 
