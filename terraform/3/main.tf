@@ -1,43 +1,3 @@
-variable "access_key" {}
-
-variable "etcd_discovery_url" {}
-
-variable "local_bash_shell_location" {
-  default = "/usr/bin/env bash"
-}
-
-variable "asset_path" {
-  default = "tmp"
-}
-
-variable "kubernetes_version" {
-  default = "v1.4.3_coreos.0"
-}
-
-variable "kubectl_version" {
-  default = "v1.4.3"
-}
-
-variable "dns_service_ip" {
-  default = "10.3.0.10"
-}
-
-variable "kubernetes_service_ip" {
-  default = "10.3.0.1"
-}
-
-variable "service_ip_range" {
-  default = "10.3.0.0/24"
-}
-
-variable "pod_network" {
-  default = "10.2.0.0/16"
-}
-
-provider "digitalocean" {
-  token = "${var.access_key}"
-}
-
 data "template_file" "master" {
   template = "${file("conf/master.conf")}"
 
@@ -82,7 +42,7 @@ resource "digitalocean_droplet" "master" {
 }
 
 variable "node_size_config" {
-  default = ["512mb", "512mb", "512mb", "2gb", "2gb"]
+  default = ["2gb", "2gb", "2gb", "2gb"]
 }
 
 resource "digitalocean_droplet" "node" {
@@ -99,17 +59,5 @@ resource "digitalocean_droplet" "node" {
     command = "${var.local_bash_shell_location} copy-keys.sh ${var.asset_path} ${digitalocean_droplet.master.ipv4_address} ${self.ipv4_address} ${self.name} ${self.ipv4_address_private}"
   }
 
-  count = 1
-}
-
-output "master_ipv4" {
-  value = "${digitalocean_droplet.master.ipv4_address}"
-}
-
-output "hosts" {
-  value = <<HOSTS
-
-${digitalocean_droplet.master.ipv4_address} master.local
-${digitalocean_droplet.node.0.ipv4_address} node-0.local
-HOSTS
+  count = 3
 }
