@@ -10,6 +10,10 @@ output "host_0_public" {
   value = "${digitalocean_droplet.node.0.ipv4_address}"
 }
 
+output "host_public_ips" {
+  value = "${join(" ",digitalocean_droplet.node.*.ipv4_address)}"
+}
+
 output "hosts" {
   value = <<HOSTS
 
