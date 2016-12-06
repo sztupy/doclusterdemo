@@ -5,11 +5,11 @@ The aim of this project is to supply some example configurations on how to set u
 a complete HA cluster of a simple three-tiered application on [Digital Ocean][3].
 
 Digital Ocean was chosen because it is a quite bare-metal approach, and lacks a lot
-of functionality of bigger cloud providers, like AWS, GCE or Azure. Mot of the steps
-described here can however be used on other providers, but not that some functionality,
+of functionality of bigger cloud providers, like AWS, GCE or Azure. Most of the steps
+described here can however be used on other providers, but note that some functionality,
 like virtual networking or load balancing have a much better support on them, and
 you might opt to use them, instead of the bare-metal approach. However sometimes it
-is good to know things interact with each other to get a better sense of what's
+is good to know how things interact with each other to get a better sense of what's
 happening in the background. Also knowing how to solve the shortcomings of a bare-metal
 approach can help you in not getting vendor locked in with a specific provider.
 
@@ -30,7 +30,7 @@ directories:
 Prerequisities
 ==============
 
-The steps to deploy the cluster is done in stages, you can find them inside the `terraform`
+The steps to deploy the cluster are done in stages, you can find them inside the `terraform`
 directory.
 
 To run them you'll need the following:
