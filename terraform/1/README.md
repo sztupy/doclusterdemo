@@ -7,14 +7,9 @@ the whole three-tiered app on a single host, to check if our application can act
 First you should create a `terraform.tfvars` file, and fill in the details:
 
     access_key="<the token you have generated on the DO panel>"
-    domain_name="<any random domain name, should be unique and not already used in digital ocean>"
 
 Next you should run `terraform plan` which will return all of the changes it will do with
 your account:
-
-    + digitalocean_domain.default
-        ip_address: "<computed>"
-        name:       "<...>"
 
     + digitalocean_droplet.web
         disk:                 "<computed>"
@@ -40,8 +35,7 @@ your account:
         public_key:  "<...>"
 
 This tells us that terraform will upload your public key to digital ocean, so it can
-create a new droplet, where you'll have access to it using that key. It will also create
-a new domain for you, and set it's A record to your new machine.
+create a new droplet, where you'll have access to it using that key.
 
 If you're happy with the changes you can apply it using `terraform apply`.
 
@@ -67,7 +61,7 @@ browser, by etnering the IP address.
 Once finished, you can decomission your servers using `terraform destroy`. To check
 what it will do simply use `terraform plan --destroy`.
 
-Once finished, continue with the [next step](../2), or you cn read more about the
+Once finished, continue with the [next step](../2), or you can read more about the
 details.
 
 Details
