@@ -23,6 +23,9 @@ directories:
   the database layer instead of an in memory store
 * `api`: This contains HAProxy with an rsyslog changes that will make sure the output is
   logged to stdout, for better docker logging compatibility
+* `cassandra-petset`: A cassandra container modified to be usable with Kubernetes' PetSet
+  functionality. Code is from [k8s for greeks][12] rebuilt, so it can be stored in docker hub,
+  instead of gcr.io
 
 Prerequisities
 ==============
@@ -66,3 +69,4 @@ Once you have them up and running, continue with the [first step][11]
 [9]: https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 [10]: https://cloud.digitalocean.com/settings/api/tokens
 [11]: terraform/1
+[12]: http://blog.kubernetes.io/2016/07/thousand-instances-of-cassandra-using-kubernetes-pet-set.html

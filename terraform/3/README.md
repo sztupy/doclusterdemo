@@ -48,7 +48,7 @@ Some notes on the setup:
 * For security `etcd2` is set up to use SSL. For ease of setup it uses the same keys as kubernetes
 * Kubernetes, flannel and related services are all set up as `systemd` modules inside the cloud-init config
 * There is a second `oneshot` service that will bootstrap kubernetes once the kube-api container is up
-* The rest of the config is essentally the
+* The rest of the config files are essentally the same as the ones from the CoreOS guide.
 
 Some notes on what happens during initialization:
 
